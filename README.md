@@ -1,7 +1,6 @@
 # admin_demo
 
-Admin panel (React + TypeScript) for the three-repo CI/CD demo
-(`backend_demo`, `admin_demo`, `frontend_demo`).
+Admin panel (React + TypeScript) for the CI/CD demo (`backend_demo`, `admin_demo`, `frontend_demo`, `infra_demo`).
 
 Branch flow: `feature/*` → `dev` → `test` → `main`, each step by pull request.
 
