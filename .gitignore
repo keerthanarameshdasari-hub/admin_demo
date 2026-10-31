@@ -7,3 +7,9 @@ coverage/
 !.env.example
 *.log
 .DS_Store
+playwright-report/
+test-results/
+# Written by each environment's deploy (and by the E2E run), never committed.
+public/config.json
+# Per-run copy of dist/ with an E2E config.json (see playwright.config.ts).
+.e2e-site/

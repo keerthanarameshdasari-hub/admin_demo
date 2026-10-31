@@ -1,0 +1,5 @@
+{
+  "$comment": "For editors. `npm run typecheck` checks both projects: the app (browser) and the tooling/E2E (Node).",
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+}
