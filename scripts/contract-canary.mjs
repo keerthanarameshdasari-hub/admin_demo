@@ -19,8 +19,8 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '..');
-/** tsc error lines from these files don't count as "the app noticed". */
-const TEST_CODE = /^src\/(mocks|test)\/|\.test\.tsx?\(/;
+/** tsc error lines from the mocks, test helpers or test files don't count as "the app noticed". */
+const isTestCode = (line) => /^src\/(?:mocks|test)\//.test(line) || /^src\/\S*\.test\.tsx?\(/.test(line);
 const BIN = join(ROOT, 'node_modules', '.bin');
 
 /** Renames a property of a component schema, including in its `required` list. */
@@ -94,7 +94,7 @@ try {
       continue;
     }
     const errors = result.output.split('\n').filter((line) => line.includes('error TS'));
-    const inApp = errors.find((line) => !TEST_CODE.test(line));
+    const inApp = errors.find((line) => !isTestCode(line));
     if (!inApp) {
       failed = true;
       const message = `${mutation.name}: only mocks/tests fail to compile; the app itself would not notice`;
