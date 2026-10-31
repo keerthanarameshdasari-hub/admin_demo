@@ -1,0 +1,5 @@
+{
+  "$comment": "Gzipped bytes, checked by `npm run bundle:check` in CI. Raise a limit only on purpose, in the PR that needs it.",
+  "js": 125000,
+  "css": 10000
+}

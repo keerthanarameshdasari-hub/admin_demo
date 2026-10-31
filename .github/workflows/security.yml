@@ -77,7 +77,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # actions: the workflow files themselves. javascript-typescript: src/.
+        # actions: the workflow files themselves. javascript-typescript: the admin portal
+        # (src/), its build/deploy scripts (scripts/) and the E2E mock server (e2e/).
         # Add java-kotlin (android/) or swift (ios/, needs a macOS runner) when native code exists.
         language: [actions, javascript-typescript]
     steps:
