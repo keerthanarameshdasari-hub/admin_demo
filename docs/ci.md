@@ -9,8 +9,9 @@ run any of it yourself; it all happens on GitHub when you open a pull request.
 feature/* ──PR──▶ dev ──PR──▶ test ──PR──▶ main
 ```
 
-Every arrow is a pull request, and every pull request into `dev`, `test` or `main` runs the
-**Security** workflow (`.github/workflows/security.yml`). It also runs:
+Every arrow is a pull request, and every pull request into `dev`, `test` or `main` runs two
+workflows: **CI** (`.github/workflows/ci.yml`: lint, types, tests, build, E2E, bundle size; see
+"The CI workflow" below) and **Security** (`.github/workflows/security.yml`). Security also runs:
 
 - on every push to `dev` (i.e. after a PR merges), so `dev` itself is scanned and the Security
   tab reflects what is actually on the branch;
@@ -23,7 +24,7 @@ A pull request can only merge when all of its required checks are green. PRs int
 `test` need nothing more, so you can merge your own. PRs into `main` also need an approval from
 the other maintainer (see "Who reviews what").
 
-## The jobs
+## The Security workflow
 
 ### Secret scan (gitleaks)
 
@@ -55,8 +56,9 @@ GitHub's code analyser. It runs once per language, which is why it shows up as t
 
 - **actions** reads our workflow files and looks for things like untrusted input reaching a
   shell script, or a job with more permissions than it uses.
-- **javascript-typescript** reads `src/` and looks for security bugs such as injection,
-  cross-site scripting and unsafe use of user input.
+- **javascript-typescript** reads the portal (`src/`), its scripts (`scripts/`) and the E2E mock
+  server (`e2e/`), and looks for security bugs such as injection, cross-site scripting and unsafe
+  use of user input.
 
 *Why:* these are the bugs reviewers miss most often, because the dangerous path can run across
 several files.
@@ -82,6 +84,69 @@ and bugs in the shell scripts inside `run:` steps.
 
 *Why:* without it, a typo in a workflow only shows up when the workflow runs, or quietly
 makes a job do nothing.
+
+## The CI workflow
+
+`ci.yml` runs on every pull request. Its jobs, and what to do when one fails:
+
+### Lint
+
+ESLint (including a rule that forbids `localStorage`, `sessionStorage`, IndexedDB and
+`document.cookie` in `src/`, because the access token must stay in memory) and Prettier.
+
+*If it fails:* run `npm run lint` and `npm run format` locally.
+
+### Types and API contract
+
+1. `npm run api:check`: `api/openapi.json` must match the sha256 in `api/openapi.lock.json`
+   (so nobody hand-edits the copied spec), and `src/api/schema.d.ts` must be exactly what the
+   generator produces from it. It warns (doesn't fail) while the spec is pinned to a commit
+   rather than a tag.
+2. `npm run typecheck`: `tsc` for the app and for the tooling and E2E code.
+3. `npm run api:canary`: renames, one at a time, several fields and a path the portal uses,
+   regenerates the client and requires `tsc` to fail in app code each time.
+
+*Why:* the backend's contract can change. With a typed client, a renamed or removed field is
+caught here, not by an admin clicking a broken button.
+
+*If it fails:* if you updated the spec, run `npm run api:fetch -- <tag>` (never edit
+`api/openapi.json` by hand) and fix what `tsc` reports. If the canary fails, some code reads API
+data through `any` or a cast; type it from `Schemas` in `src/api/client.ts` instead.
+
+### Unit and component tests
+
+Vitest with Testing Library. The API is mocked with MSW (`src/mocks/`), which follows the
+backend's rules. A request with no mock fails the test.
+
+### Build
+
+`npm run build`, uploaded as the `admin-dist` artifact. The next two jobs test that exact output
+instead of rebuilding.
+
+### E2E (Playwright)
+
+Headless Chromium against the build, served by `vite preview`, talking cross-origin to
+`e2e/mock-api-server.ts` (the same MSW handlers on a real port). The run writes a `config.json`
+into a copy of the build, as a deploy does. Covers login, approve KYC, reject KYC and viewing
+transactions.
+
+*If it fails:* download the `playwright-report` artifact and open `index.html`; failed tests
+include a trace and a screenshot. Locally: `npm run build && npm run e2e`.
+
+### Bundle size budget
+
+Gzipped JS and CSS in the build must stay within `bundle-budget.json`. It also fails if the
+build contains the test mocks or a `config.json`, because the same build must work in every
+environment.
+
+*If it fails:* look at what grew (the job summary lists sizes). Raise the budget only on purpose,
+in the PR that needs it.
+
+### admin-ci-passed
+
+Runs last, always, and fails unless every job above succeeded. GitHub treats a *skipped*
+required check as passing, so this is the one CI check to require, and adding a job to `ci.yml`
+only means adding it to this job's `needs`.
 
 ## Rules we follow in workflows
 
@@ -137,6 +202,7 @@ and `main-strict` (for `main`):
 | `CodeQL (javascript-typescript)` | codeql |
 | `Workflow audit (zizmor)` | zizmor |
 | `Workflow lint (actionlint)` | actionlint |
+| `admin-ci-passed` | the CI workflow (stands for all its jobs) |
 
 If you rename a job or add a CodeQL language, update the rulesets too. A required check whose
 name no longer exists never reports, and PRs wait on it forever.
