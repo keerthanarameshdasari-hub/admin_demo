@@ -20,8 +20,8 @@ workflows: **CI** (`.github/workflows/ci.yml`: lint, types, tests, build, E2E, b
 
 It never runs on `pull_request_target`, and it needs no secrets.
 
-A pull request can only merge when all of its required checks are green. PRs into `dev` and
-`test` need nothing more, so you can merge your own. PRs into `main` also need an approval from
+A pull request can only merge when all of its required checks are green. PRs into `dev` need
+nothing more, so you can merge your own. PRs into `test` and `main` also need an approval from
 the other maintainer (see "Who reviews what").
 
 ## The Security workflow
@@ -178,31 +178,44 @@ out until those folders exist.
 
 Because every file has owners, GitHub automatically asks the other maintainer to review each
 pull request; it shows up in their GitHub notifications (and email, if they have it on). What
-that review means depends on where the PR is going:
+that review means depends on where the PR is going.
 
-- **Into `dev` or `test`** (`dev-test` ruleset): the review is optional. Once the checks are
-  green you can merge your own PR.
-- **Into `main`** (`main-strict` ruleset): one approval from a code owner other than the PR's
-  author is required. If new commits are pushed after the approval, it is dismissed and the
-  PR needs approving again. Nobody, admins included, can bypass this.
+Each branch has its own ruleset (Settings → Rules → Rulesets):
+
+| | `protect-dev` | `protect-test` | `protect-main` |
+|---|---|---|---|
+| Approvals needed | none set | 1, from a code owner | 1, from a code owner |
+| Merge method | squash only | merge commit only | merge commit only |
+| Branch must be up to date with its target | yes | no | no |
+
+So you can merge your own PR into `dev` once its checks are green, but a PR into `test` or `main`
+needs the other maintainer to approve it.
+
+All three also: dismiss an approval when new commits are pushed, require every review
+conversation to be resolved, and block force-pushes and deleting the branch. None has a bypass
+list, so admins follow the same rules. A fourth ruleset, `protect-release-tags`, stops `v*` tags
+from being moved or deleted.
 
 To review, open the PR, go to **Files changed → Review changes**, pick **Approve** or
 **Request changes**, and submit.
 
 ## Required checks
 
-These are the check names to require in both branch rulesets, `dev-test` (for `dev` and `test`)
-and `main-strict` (for `main`):
+These are the check names to require in all three branch rulesets, `protect-dev`,
+`protect-test` and `protect-main`:
 
-| Check name | Job |
-|---|---|
-| `Secret scan (gitleaks)` | gitleaks |
-| `Dependency review` | dependency-review |
-| `CodeQL (actions)` | codeql |
-| `CodeQL (javascript-typescript)` | codeql |
-| `Workflow audit (zizmor)` | zizmor |
-| `Workflow lint (actionlint)` | actionlint |
-| `admin-ci-passed` | the CI workflow (stands for all its jobs) |
+| Check name | Workflow | Job |
+|---|---|---|
+| `admin-ci-passed` | CI | admin-ci-passed (covers every other CI job) |
+| `Secret scan (gitleaks)` | Security | gitleaks |
+| `Dependency review` | Security | dependency-review |
+| `CodeQL (actions)` | Security | codeql |
+| `CodeQL (javascript-typescript)` | Security | codeql |
+| `Workflow audit (zizmor)` | Security | zizmor |
+| `Workflow lint (actionlint)` | Security | actionlint |
+
+Don't add the individual CI jobs: `admin-ci-passed` already requires them, and new CI jobs are
+covered as soon as they're added to its `needs:` list.
 
 If you rename a job or add a CodeQL language, update the rulesets too. A required check whose
 name no longer exists never reports, and PRs wait on it forever.
