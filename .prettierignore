@@ -1,0 +1,11 @@
+dist/
+.e2e-site/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+# Generated or copied verbatim from backend_demo; formatting them would break the sha256 in the lock.
+api/openapi.json
+src/api/schema.d.ts
+# Prose is formatted by hand.
+*.md

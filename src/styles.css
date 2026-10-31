@@ -1,0 +1,388 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #17191c;
+  --muted: #5d6470;
+  --line: #e2e5ea;
+  --accent: #2f5bd3;
+  --accent-text: #ffffff;
+  --good: #1b7a46;
+  --good-bg: #e5f4ec;
+  --bad: #b3261e;
+  --bad-bg: #fbe9e7;
+  --warn: #8a5a00;
+  --warn-bg: #fdf1d8;
+  --info: #2f5bd3;
+  --info-bg: #e8eefc;
+  --muted-bg: #eef0f3;
+  --radius: 8px;
+  color-scheme: light;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111317;
+    --surface: #1a1d22;
+    --text: #e8eaee;
+    --muted: #9aa2ae;
+    --line: #2c3038;
+    --accent: #7c9cf5;
+    --accent-text: #0d1117;
+    --good: #6fd09a;
+    --good-bg: #173326;
+    --bad: #f2948b;
+    --bad-bg: #3a1d1b;
+    --warn: #e8c06a;
+    --warn-bg: #362b12;
+    --info: #9db4f7;
+    --info-bg: #1d2742;
+    --muted-bg: #262a31;
+    color-scheme: dark;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+button.approve {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+button.reject {
+  border-color: var(--bad);
+  color: var(--bad);
+}
+
+input,
+select,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  background: var(--surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- shell */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.topbar nav a {
+  text-decoration: none;
+  color: var(--muted);
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+}
+
+.topbar nav a.active {
+  color: var(--text);
+  background: var(--muted-bg);
+  font-weight: 600;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+}
+
+.content {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.filter {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--info-bg);
+  color: var(--info);
+  border-radius: 999px;
+  padding: 0.25rem 0.4rem 0.25rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.chip button {
+  border: 0;
+  background: none;
+  color: inherit;
+  padding: 0 0.3rem;
+}
+
+.hint {
+  color: var(--muted);
+  margin: 0 0 1rem;
+  max-width: 70ch;
+}
+
+/* ---------------------------------------------------------------- tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+td.num,
+th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+td.actions button + button {
+  margin-left: 0.4rem;
+}
+
+td.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem;
+}
+
+.row-detail td {
+  background: var(--bg);
+}
+
+.sub {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}
+
+.badge-good {
+  color: var(--good);
+  background: var(--good-bg);
+}
+.badge-bad {
+  color: var(--bad);
+  background: var(--bad-bg);
+}
+.badge-warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+.badge-info {
+  color: var(--info);
+  background: var(--info-bg);
+}
+.badge-muted {
+  color: var(--muted);
+  background: var(--muted-bg);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
+.reject-form {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 560px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------- notices */
+
+.notice {
+  margin: 0.5rem 0;
+  color: var(--muted);
+}
+
+.notice-error {
+  color: var(--bad);
+}
+
+.notice-good {
+  color: var(--good);
+}
+
+.link-button {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* ---------------------------------------------------------------- login */
+
+.login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-card {
+  width: min(380px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 2rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.login-card .brand {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.login-card label {
+  display: grid;
+  gap: 0.3rem;
+}
